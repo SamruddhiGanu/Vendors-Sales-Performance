@@ -1,0 +1,30 @@
+{
+  "name": "Vendor Performance",
+  "dataColors": ["#2563EB", "#14B8A6", "#F59E0B", "#7C3AED", "#EF4444", "#64748B"],
+  "background": "#F8FAFC",
+  "foreground": "#0F172A",
+  "tableAccent": "#2563EB",
+  "good": "#16A34A",
+  "neutral": "#F59E0B",
+  "bad": "#DC2626",
+  "maximum": "#2563EB",
+  "center": "#E2E8F0",
+  "minimum": "#DC2626",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [{
+          "show": true,
+          "fontFamily": "Segoe UI Semibold",
+          "fontSize": 12,
+          "fontColor": { "solid": { "color": "#0F172A" } }
+        }],
+        "background": [{
+          "show": true,
+          "color": { "solid": { "color": "#FFFFFF" } },
+          "transparency": 0
+        }]
+      }
+    }
+  }
+}

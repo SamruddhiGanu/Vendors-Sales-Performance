@@ -1,0 +1,127 @@
+// Create these as individual measures in Power BI.
+
+Net Sales =
+SUM ( sales[SalesDollars] )
+
+Sales Units =
+SUM ( sales[SalesQuantity] )
+
+Average Selling Price =
+DIVIDE ( [Net Sales], [Sales Units] )
+
+Excise Tax =
+SUM ( sales[ExciseTax] )
+
+Purchase Spend =
+SUM ( purchases[Dollars] )
+
+Purchase Units =
+SUM ( purchases[Quantity] )
+
+Average Purchase Price =
+DIVIDE ( [Purchase Spend], [Purchase Units] )
+
+Freight Cost =
+SUM ( vendor_invoice[Freight] )
+
+Gross Profit Proxy =
+[Net Sales] - [Purchase Spend] - [Freight Cost] - [Excise Tax]
+
+Profit Margin Proxy =
+DIVIDE ( [Gross Profit Proxy], [Net Sales] )
+
+Stock Turnover Proxy =
+DIVIDE ( [Sales Units], [Purchase Units] )
+
+Sales to Purchase Ratio =
+DIVIDE ( [Net Sales], [Purchase Spend] )
+
+Freight Rate =
+DIVIDE ( [Freight Cost], SUM ( vendor_invoice[Dollars] ) )
+
+PO Count =
+DISTINCTCOUNT ( purchases[PONumber] )
+
+Vendor Count =
+DISTINCTCOUNT ( DimVendor[VendorNumber] )
+
+Average Payment Days =
+AVERAGEX (
+    FILTER (
+        vendor_invoice,
+        NOT ISBLANK ( vendor_invoice[PayDate] )
+            && NOT ISBLANK ( vendor_invoice[InvoiceDate] )
+    ),
+    DATEDIFF ( vendor_invoice[InvoiceDate], vendor_invoice[PayDate], DAY )
+)
+
+Opening Inventory Units =
+SUM ( begin_inventory[onHand] )
+
+Opening Inventory Value =
+SUMX (
+    begin_inventory,
+    begin_inventory[onHand] * begin_inventory[Price]
+)
+
+Closing Inventory Units =
+SUM ( end_inventory[onHand] )
+
+Closing Inventory Value =
+SUMX (
+    end_inventory,
+    end_inventory[onHand] * end_inventory[Price]
+)
+
+Inventory Value Change =
+[Closing Inventory Value] - [Opening Inventory Value]
+
+Sell-through Proxy =
+DIVIDE ( [Sales Units], [Sales Units] + [Closing Inventory Units] )
+
+Purchase Contribution % =
+DIVIDE (
+    [Purchase Spend],
+    CALCULATE ( [Purchase Spend], REMOVEFILTERS ( DimVendor ) )
+)
+
+Vendor Purchase Rank =
+RANKX (
+    ALLSELECTED ( DimVendor[VendorName] ),
+    [Purchase Spend],
+    ,
+    DESC,
+    DENSE
+)
+
+Top 10 Vendor Purchase Share =
+VAR TopVendors =
+    TOPN (
+        10,
+        ALLSELECTED ( DimVendor[VendorName] ),
+        [Purchase Spend],
+        DESC
+    )
+RETURN
+    DIVIDE (
+        CALCULATE ( [Purchase Spend], KEEPFILTERS ( TopVendors ) ),
+        CALCULATE ( [Purchase Spend], ALLSELECTED ( DimVendor[VendorName] ) )
+    )
+
+Sales Previous Month =
+CALCULATE ( [Net Sales], DATEADD ( DimDate[Date], -1, MONTH ) )
+
+Sales MoM % =
+DIVIDE ( [Net Sales] - [Sales Previous Month], [Sales Previous Month] )
+
+Sales YTD =
+TOTALYTD ( [Net Sales], DimDate[Date] )
+
+Negative Profit Vendor Count =
+COUNTROWS (
+    FILTER (
+        VALUES ( DimVendor[VendorNumber] ),
+        [Gross Profit Proxy] < 0
+    )
+)
+
